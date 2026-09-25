@@ -1,0 +1,6 @@
+ext.minecraftVersion = '26.1.2'
+ext.fabricApiVersion = '0.155.3+26.1.2'
+// 26.1 is the last line where the overlay message lives directly on Gui; 26.2 moved it to Hud.
+ext.minecraftDependency = '~26.1.2'
+
+apply from: "$rootDir/gradle/mod.gradle"

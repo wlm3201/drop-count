@@ -1,0 +1,6 @@
+ext.minecraftVersion = '26.3'
+ext.fabricApiVersion = '0.161.0+26.3'
+// 26.3 is not covered by the 26.2 jar: see the note in versions/26.2/build.gradle.
+ext.minecraftDependency = '~26.3'
+
+apply from: "$rootDir/gradle/mod.gradle"

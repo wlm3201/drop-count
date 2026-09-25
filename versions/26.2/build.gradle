@@ -1,0 +1,8 @@
+ext.minecraftVersion = '26.2'
+ext.fabricApiVersion = '0.161.0+26.2'
+// Minecraft has shipped unobfuscated since 26.1, so a jar is no longer tied to one game version by
+// remapping -- but it is still tied by API: 26.3 dropped PoseStack.mulPose(Quaternionf) and renamed
+// InputConstants.Type.KEYSYM, both of which we call, so this jar must stop at 26.3.
+ext.minecraftDependency = '~26.2'
+
+apply from: "$rootDir/gradle/mod.gradle"

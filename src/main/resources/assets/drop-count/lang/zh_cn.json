@@ -1,0 +1,6 @@
+{
+	"key.category.drop-count.dropcount": "物品实体标签",
+	"key.dropcount.toggle": "切换物品实体标签",
+	"dropcount.message.enabled": "物品实体标签 已显示",
+	"dropcount.message.disabled": "物品实体标签 已隐藏"
+}

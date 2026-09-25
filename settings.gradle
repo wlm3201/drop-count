@@ -1,0 +1,25 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+// Should match your modid
+rootProject.name = 'drop-count'
+
+// One subproject per supported Minecraft version. All of them compile the same sources under
+// src/; only versions/<mc>/src is version specific, and only versions/<mc>/build.gradle decides
+// which Minecraft and Fabric API the build is against.
+include ':v26_1_2'
+project(':v26_1_2').projectDir = file('versions/26.1.2')
+
+include ':v26_2'
+project(':v26_2').projectDir = file('versions/26.2')
+
+include ':v26_3'
+project(':v26_3').projectDir = file('versions/26.3')

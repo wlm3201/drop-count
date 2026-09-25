@@ -1,0 +1,8 @@
+plugins {
+	// Applied to the version subprojects instead of here, so the root stays free of Minecraft.
+	id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
+}
+
+allprojects {
+	group = rootProject.group
+}

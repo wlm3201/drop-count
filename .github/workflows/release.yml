@@ -1,0 +1,80 @@
+name: Release
+
+# Pushing a tag builds every supported Minecraft version and attaches the jars to a GitHub release:
+#   git tag v1.0.1 && git push origin v1.0.1
+# A release can also be cut from the Actions tab with an explicit version.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, e.g. 1.0.1. Ignored when triggered by a tag.'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="${{ inputs.version }}"
+          fi
+          if [ -z "$version" ]; then
+            echo "No version: push a v* tag or run this workflow with a version." >&2
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      # Loom downloads the game jars and mappings during configuration, straight from Mojang's
+      # servers, which return the occasional 5xx/connection reset to CI IPs. A failed download
+      # aborts the whole build, so retry: the second attempt only has to fetch what is missing.
+      - name: Build all Minecraft versions
+        run: |
+          chmod +x ./gradlew
+          for attempt in 1 2 3; do
+            echo "::group::Build attempt $attempt"
+            if ./gradlew build -Pversion="${{ steps.version.outputs.value }}" --no-daemon; then
+              echo "::endgroup::"
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "Attempt $attempt failed, retrying in 30s."
+            sleep 30
+          done
+          echo "Build failed after 3 attempts." >&2
+          exit 1
+
+      - name: Collect jars
+        run: |
+          mkdir -p build/release
+          find versions -name 'drop-count-mc*.jar' ! -name '*-sources.jar' -exec cp {} build/release/ \;
+          ls -l build/release
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.version.outputs.value) }}
+          name: v${{ steps.version.outputs.value }}
+          generate_release_notes: true
+          files: build/release/*.jar

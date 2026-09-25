@@ -1,0 +1,102 @@
+// Shared build logic for one Minecraft version. Applied by versions/<mc>/build.gradle, which sets
+// minecraftVersion / fabricApiVersion / minecraftDependency on the project first.
+apply plugin: 'java'
+apply plugin: 'net.fabricmc.fabric-loom'
+apply plugin: 'maven-publish'
+
+version = rootProject.version
+
+base {
+	archivesName = "${rootProject.name}-mc${project.ext.minecraftVersion}"
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"drop-count" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+repositories {
+	// Add repositories to retrieve artifacts from in here.
+	// You should only use this when depending on other mods because
+	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+	// See https://docs.gradle.org/current/declaring_repositories.html for more information about repositories.
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.ext.minecraftVersion}"
+	implementation "net.fabricmc:fabric-loader:${rootProject.property('loader_version')}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.ext.fabricApiVersion}"
+}
+
+sourceSets {
+	// The real sources live at the root and are shared by every version. The version directory is
+	// listed second so it can add (or override) files for this Minecraft version only.
+	main {
+		java.srcDirs = ["${rootDir}/src/main/java"]
+		resources.srcDirs = ["${rootDir}/src/main/resources"]
+	}
+	client {
+		java.srcDirs = ["${rootDir}/src/client/java", "${projectDir}/src/client/java"]
+		resources.srcDirs = ["${rootDir}/src/client/resources", "${projectDir}/src/client/resources"]
+	}
+}
+
+// Captured up front: the expand closure runs at execution time, where the configuration cache
+// forbids reaching back into the project.
+def projectVersion = project.version
+def minecraftDep = project.ext.minecraftDependency
+
+processResources {
+	inputs.property "version", projectVersion
+	inputs.property "minecraft_dependency", minecraftDep
+
+	filesMatching("fabric.mod.json") {
+		expand "version": projectVersion, "minecraft_dependency": minecraftDep
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	// Loom will automatically attach sourcesJar to the RemapSourcesJar task and to the "build" task
+	// if it is present. If you remove this line, sources will not be generated.
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+	def projectName = rootProject.name
+	inputs.property "projectName", projectName
+
+	from("${rootDir}/LICENSE") {
+		rename { "${it}_$projectName"}
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+
+	// See https://docs.gradle.org/current/declaring_repositories.html for information on how to set up publishing.
+	repositories {
+		// Add repositories to publish to here. Notice: this block does NOT have the same function as
+		// the block in the top level. The repositories here will be used to publish artifacts, whereas
+		// the top-level block defines repositories used to retrieve dependencies.
+	}
+}
