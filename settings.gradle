@@ -1,0 +1,20 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+// Should match your modid
+rootProject.name = 'drop-count'
+
+// Every supported Minecraft version is a sub project, sharing the sources in ./src
+// and putting its own overrides into versions/<version>/src
+['26.1.2', '26.2', '26.3'].each { minecraftVersion ->
+	include ":$minecraftVersion"
+	project(":$minecraftVersion").projectDir = file("versions/$minecraftVersion")
+}

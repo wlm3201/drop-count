@@ -1,0 +1,17 @@
+{
+	"required": true,
+	"package": "com.drop_count.client.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"ExampleClientMixin",
+		"MinecraftTickMixin",
+		"OptionsMixin",
+		"OverlayRenderStateMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

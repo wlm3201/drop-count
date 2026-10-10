@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "drop-count",
+  "version": "${version}",
+  "name": "drop count",
+  "description": "Draws the item name and stack size above dropped items, merging stacks that are too big to combine and keeping overlapping labels readable",
+  "authors": ["wlm3201"],
+  "contact": { "sources": "https://github.com/wlm3201/drop-count" },
+  "license": "GPL v3",
+  "icon": "assets/drop-count/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.drop_count.DropCount"],
+    "client": ["com.drop_count.client.DropCountClient"],
+    "modmenu": ["com.drop_count.client.integration.ModMenuIntegration"]
+  },
+  "mixins": [
+    "drop-count.mixins.json",
+    {
+      "config": "drop-count.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~${minecraftVersion}",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

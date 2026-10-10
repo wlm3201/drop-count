@@ -1,0 +1,118 @@
+// Shared build logic, applied by every versions/<version>/build.gradle after it declared
+// its own dependency versions (minecraftVersion, fabricApiVersion, yaclVersion, modMenuVersion).
+
+apply plugin: 'net.fabricmc.fabric-loom'
+apply plugin: 'maven-publish'
+
+base {
+	archivesName = "${rootProject.name}-${project.name}"
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"drop-count" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+// Shared sources live in ./src, version specific overrides in versions/<version>/src
+def sharedDir = rootProject.projectDir
+def modName = rootProject.name
+
+sourceSets {
+	main {
+		java {
+			srcDirs = [new File(sharedDir, 'src/main/java'), file('src/main/java')]
+		}
+
+		resources {
+			srcDirs = [new File(sharedDir, 'src/main/resources'), file('src/main/resources')]
+		}
+	}
+
+	client {
+		java {
+			srcDirs = [new File(sharedDir, 'src/client/java'), file('src/client/java')]
+		}
+
+		resources {
+			srcDirs = [new File(sharedDir, 'src/client/resources'), file('src/client/resources')]
+		}
+	}
+}
+
+repositories {
+	maven {
+		name = 'Terraformers'
+		url = 'https://maven.terraformersmc.com/'
+	}
+
+	maven {
+		name = 'Xander'
+		url = 'https://maven.isxander.dev/releases'
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraftVersion}"
+	implementation "net.fabricmc:fabric-loader:${rootProject.property('loader_version')}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabricApiVersion}"
+
+	// Optional integrations: Mod Menu shows the config button, YACL renders the config screen.
+	// Minecraft 26.1+ ships without obfuscation, so Loom no longer provides the
+	// `modImplementation` configuration, mods are declared as regular dependencies.
+	implementation "com.terraformersmc:modmenu:${project.modMenuVersion}"
+	implementation "dev.isxander:yet-another-config-lib:${project.yaclVersion}"
+}
+
+// Captured here so the processResources closures do not touch the project at execution time
+// (which the configuration cache forbids).
+def modVersion = project.version
+def modMinecraftVersion = project.minecraftVersion
+
+processResources {
+	inputs.property "version", modVersion
+	inputs.property "minecraftVersion", modMinecraftVersion
+
+	filesMatching("fabric.mod.json") {
+		expand "version": modVersion, "minecraftVersion": modMinecraftVersion
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+def licenseFile = rootProject.file("LICENSE")
+
+jar {
+	from(licenseFile) {
+		rename { "${it}_${modName}" }
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = "${rootProject.name}-${project.name}"
+			from components.java
+		}
+	}
+}
