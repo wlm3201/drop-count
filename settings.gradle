@@ -9,12 +9,10 @@ pluginManagement {
 	}
 }
 
-// Should match your modid
 rootProject.name = 'drop-count'
 
-// Every supported Minecraft version is a sub project, sharing the sources in ./src
-// and putting its own overrides into versions/<version>/src
-['26.1.2', '26.2', '26.3'].each { minecraftVersion ->
-	include ":$minecraftVersion"
-	project(":$minecraftVersion").projectDir = file("versions/$minecraftVersion")
+new File(settingsDir, 'versions').eachDir { dir ->
+	def projectName = ':v' + dir.name.replace('.', '_').replace('-', '_')
+	include projectName
+	project(projectName).projectDir = dir
 }

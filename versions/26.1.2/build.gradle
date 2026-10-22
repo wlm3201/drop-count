@@ -1,9 +1,0 @@
-// Minecraft 26.1.2
-
-ext.minecraftVersion = '26.1.2'
-ext.fabricApiVersion = '0.155.3+26.1.2'
-// YACL and Mod Menu are published per Minecraft version
-ext.yaclVersion = '3.9.7+26.1-fabric'
-ext.modMenuVersion = '18.0.2'
-
-apply from: rootProject.file('gradle/common.gradle')

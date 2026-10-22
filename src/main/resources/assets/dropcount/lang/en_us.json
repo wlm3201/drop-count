@@ -1,0 +1,46 @@
+{
+	"key.drop_count.toggle_item_tags": "Toggle Item Tags",
+	"dropcount.item_tags.enabled": "ItemTags enabled",
+	"dropcount.item_tags.disabled": "ItemTags disabled",
+
+	"dropcount.config.title": "drop count",
+
+	"dropcount.category.general": "General",
+	"dropcount.category.appearance": "Appearance",
+	"dropcount.category.shulker": "Shulker Boxes",
+
+	"dropcount.option.enabled": "Enabled",
+	"dropcount.option.enabled.description": "Shows the tags above dropped items. Can also be toggled with the hotkey.",
+	"dropcount.option.filter": "Filter Mode",
+	"dropcount.option.filter.description": "Whitelist: only the listed items get a tag. Blacklist: everything except the listed items gets a tag.",
+	"dropcount.filter.blacklist": "Blacklist",
+	"dropcount.filter.whitelist": "Whitelist",
+	"dropcount.option.items": "Items",
+	"dropcount.option.items.description": "Item ids, e.g. minecraft:diamond",
+	"dropcount.option.merge_mode": "Merge Mode",
+	"dropcount.option.merge_mode.description": "How stacks of a cluster are combined.",
+	"dropcount.merge_mode.none": "None",
+	"dropcount.merge_mode.by_item": "By Item",
+	"dropcount.merge_mode.by_components": "By Components",
+
+	"dropcount.option.background_color": "Background Color",
+	"dropcount.option.row_length": "Row Length",
+	"dropcount.option.row_length.description": "How many items are drawn per row before a new row starts.",
+	"dropcount.option.prevent_overlap": "Prevent Overlap",
+	"dropcount.option.prevent_overlap.description": "Pushes tags apart when they would overlap each other.",
+	"dropcount.option.max_distance": "Visible Distance",
+	"dropcount.option.max_distance.description": "Item entities further away than this (in blocks) get no tag.",
+	"dropcount.option.scale": "Scale",
+	"dropcount.option.scale.description": "Multiplier of the tag size, 1 is the size of a vanilla name tag.",
+	"dropcount.option.distance_falloff": "Distance Falloff",
+	"dropcount.option.distance_falloff.description": "How fast tags shrink with distance. 1 is the vanilla 1 / distance, 0 keeps every tag the same size.",
+	"dropcount.group.render_offset": "Render Offset",
+	"dropcount.option.render_offset.x": "Offset X",
+	"dropcount.option.render_offset.y": "Offset Y",
+	"dropcount.option.render_offset.z": "Offset Z",
+
+	"dropcount.option.shulker_enabled": "Show Shulker Contents",
+	"dropcount.option.shulker_enabled.description": "Draws an extra tag with the contents of dropped shulker boxes.",
+	"dropcount.option.shulker_merge_stacks": "Merge Contents",
+	"dropcount.option.shulker_show_title": "Show Title"
+}

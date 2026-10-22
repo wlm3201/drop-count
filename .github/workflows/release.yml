@@ -1,18 +1,14 @@
-name: Release
-
-# Pushing a tag builds every supported Minecraft version and attaches the jars to a GitHub release:
-#   git tag v1.0.1 && git push origin v1.0.1
-# A release can also be cut from the Actions tab with an explicit version.
+name: release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version to release, e.g. 1.0.1. Ignored when triggered by a tag.'
-        required: false
+      tag:
+        description: Existing tag to build and publish, for example v1.0.0
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -20,71 +16,48 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 25
+      # gradle/mod.gradle 用 Java 25 编译，构建机必须提供同版本 JDK
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Resolve version
         id: version
         run: |
-          if [ "${{ github.ref_type }}" = "tag" ]; then
-            version="${GITHUB_REF_NAME#v}"
-          else
-            version="${{ inputs.version }}"
-          fi
-          if [ -z "$version" ]; then
-            echo "No version: push a v* tag or run this workflow with a version." >&2
-            exit 1
-          fi
-          echo "value=$version" >> "$GITHUB_OUTPUT"
+          tag="${{ inputs.tag || github.ref_name }}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "value=${tag#v}" >> "$GITHUB_OUTPUT"
 
-      # Loom downloads the game jars and mappings during configuration, straight from Mojang's
-      # servers, which return the occasional 5xx/connection reset to CI IPs. A failed download
-      # aborts the whole build, so retry: the second attempt only has to fetch what is missing.
-      - name: Build all Minecraft versions
+      # 覆盖版本号，让 jar 名与 fabric.mod.json 和发布的 tag 一致
+      - name: Build
         run: |
-          chmod +x ./gradlew
-          for attempt in 1 2 3; do
-            echo "::group::Build attempt $attempt"
-            if ./gradlew build -Pversion="${{ steps.version.outputs.value }}" --no-daemon; then
-              echo "::endgroup::"
-              exit 0
-            fi
-            echo "::endgroup::"
-            echo "Attempt $attempt failed, retrying in 30s."
-            sleep 30
-          done
-          echo "Build failed after 3 attempts." >&2
-          exit 1
+          chmod +x gradlew
+          ./gradlew build --stacktrace -Pversion=${{ steps.version.outputs.value }}
 
-      # Each versions/<version> sub project produces, in versions/<version>/build/libs:
-      #   drop-count-<minecraft version>-<mod version>.jar          <- remapped jar, this is the release artifact
-      #   drop-count-<minecraft version>-<mod version>-dev.jar      <- unmapped jar, skipped
-      #   drop-count-<minecraft version>-<mod version>-sources.jar  <- sources jar, skipped
-      - name: Collect jars
-        run: |
-          mkdir -p build/release
-          find versions/*/build/libs -name 'drop-count-*.jar' \
-            ! -name '*-sources.jar' ! -name '*-dev.jar' \
-            -exec cp {} build/release/ \;
-          if [ -z "$(ls -A build/release)" ]; then
-            echo "No release jars found, check versions/*/build/libs." >&2
-            exit 1
-          fi
-          ls -l build/release
-
+      # 只发布正式 jar：-dev 是未重映射的，-sources 是给开发者看的
       - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.version.outputs.value) }}
-          name: v${{ steps.version.outputs.value }}
-          generate_release_notes: true
-          files: build/release/*.jar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          assets=$(ls build/libs/*.jar | grep -v -- '-dev\.jar$' | grep -v -- '-sources' || true)
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" $assets --clobber
+          else
+            gh release create "$TAG" $assets \
+              --title "$TAG" \
+              --generate-notes \
+              --verify-tag
+          fi

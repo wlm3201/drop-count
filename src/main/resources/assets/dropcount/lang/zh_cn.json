@@ -1,0 +1,46 @@
+{
+	"key.drop_count.toggle_item_tags": "切换物品标签显示",
+	"dropcount.item_tags.enabled": "物品标签：开启",
+	"dropcount.item_tags.disabled": "物品标签：关闭",
+
+	"dropcount.config.title": "drop count",
+
+	"dropcount.category.general": "通用",
+	"dropcount.category.appearance": "外观",
+	"dropcount.category.shulker": "潜影盒",
+
+	"dropcount.option.enabled": "启用",
+	"dropcount.option.enabled.description": "在掉落物上方显示标签，也可用快捷键切换",
+	"dropcount.option.filter": "过滤模式",
+	"dropcount.option.filter.description": "白名单：只显示列表中的物品；黑名单：显示除列表之外的所有物品",
+	"dropcount.filter.blacklist": "黑名单",
+	"dropcount.filter.whitelist": "白名单",
+	"dropcount.option.items": "物品列表",
+	"dropcount.option.items.description": "物品 ID，例如 minecraft:diamond",
+	"dropcount.option.merge_mode": "合并模式",
+	"dropcount.option.merge_mode.description": "聚类中的物品如何合并",
+	"dropcount.merge_mode.none": "不合并",
+	"dropcount.merge_mode.by_item": "按物品",
+	"dropcount.merge_mode.by_components": "按组件",
+
+	"dropcount.option.background_color": "背景颜色",
+	"dropcount.option.row_length": "每行数量",
+	"dropcount.option.row_length.description": "每行绘制多少个物品，超出后换行",
+	"dropcount.option.prevent_overlap": "防止重叠",
+	"dropcount.option.prevent_overlap.description": "标签互相重叠时自动推开",
+	"dropcount.option.max_distance": "可见距离",
+	"dropcount.option.max_distance.description": "超过该距离（格）的掉落物不显示标签",
+	"dropcount.option.scale": "大小倍率",
+	"dropcount.option.scale.description": "标签整体缩放倍率",
+	"dropcount.option.distance_falloff": "距离衰减系数",
+	"dropcount.option.distance_falloff.description": "标签随距离缩小的快慢",
+	"dropcount.group.render_offset": "渲染偏移",
+	"dropcount.option.render_offset.x": "X 偏移",
+	"dropcount.option.render_offset.y": "Y 偏移",
+	"dropcount.option.render_offset.z": "Z 偏移",
+
+	"dropcount.option.shulker_enabled": "显示潜影盒内容",
+	"dropcount.option.shulker_enabled.description": "为掉落的潜影盒额外绘制一个内容标签",
+	"dropcount.option.shulker_merge_stacks": "合并内容",
+	"dropcount.option.shulker_show_title": "显示标题"
+}
